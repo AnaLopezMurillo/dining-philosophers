@@ -1,13 +1,12 @@
 //
-//
 import java.util.Random;
 //
 public class DiningPhilosophers {
     // should run ideally forever without stopping or deadlocking
 
     public static class Philosopher extends Thread {
-        // dine, think, and eat for arbitrary amount of time
-        // to avoid deadlock: pick up both chopsticks at the same time
+        // think, eat, and think again for arbitrary amount of time
+        // to avoid deadlock: pick up both forks at the same time
 
         private final Object leftFork;
         private final Object rightFork;
@@ -38,7 +37,7 @@ public class DiningPhilosophers {
 
                     // thinking again
                     action("Thinking");
-                    
+
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

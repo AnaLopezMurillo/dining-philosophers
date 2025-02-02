@@ -6,7 +6,7 @@ public class DiningPhilosophers {
 
     public static class Philosopher extends Thread {
         // think, eat, and think again for arbitrary amount of time
-        // to avoid deadlock: pick up both forks at the same time
+        // to avoid deadlock: pick up both forks at the same time + switch order of forks for last philosopher
 
         private final Object leftFork;
         private final Object rightFork;

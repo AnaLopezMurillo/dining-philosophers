@@ -1,0 +1,64 @@
+//
+//
+import java.util.Random;
+//
+public class DiningPhilosophers {
+    // should run ideally forever without stopping or deadlocking
+
+    public static class Philosopher extends Thread {
+        // dine, think, and eat for arbitrary amount of time
+        // to avoid deadlock: pick up both chopsticks at the same time
+
+        private final Object leftFork;
+        private final Object rightFork;
+
+        public Philosopher(Object leftFork, Object rightFork) {
+            this.leftFork = leftFork;
+            this.rightFork = rightFork;
+        }
+
+        public void action(String action) throws InterruptedException {
+            System.out.println(Thread.currentThread().getName() + " is " + action);
+            Thread.sleep((new Random()).nextInt(5000)); // perform action for a random time between 1-5 seconds
+        }
+
+        public void run() {
+            while (true) {
+                try {
+                    // think
+                    action("Thinking");
+
+                    // eat by locking both forks at the same time for an amount of time
+                    // https://stackoverflow.com/questions/23217190/how-can-a-thread-acquire-lock-on-two-objects-simultaneously-as-in-this-case
+                    synchronized(leftFork) {
+                        synchronized (rightFork) {
+                            action("Eating");
+                        }
+                    }
+
+                    // thinking again
+                    action("Thinking");
+                    
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Philosopher[] philosophers = new Philosopher[5];    // 5 philosophers
+        Object[] forks = new Object[philosophers.length];   // 5 forks
+
+        // make each fork distinct
+        for (int i = 0; i < forks.length; i++) {
+            forks[i] = new Object();
+        }
+
+        // make new philosophers with distinct forks
+        for (int i = 0 ; i < philosophers.length; i++) {
+            philosophers[i] = new Philosopher(forks[i], forks[(i + 1) % forks.length]);
+            philosophers[i].start();
+        }
+    }
+}

@@ -10,10 +10,12 @@ public class DiningPhilosophers {
 
         private final Object leftFork;
         private final Object rightFork;
+        private final boolean reverseOrder;
 
-        public Philosopher(Object leftFork, Object rightFork) {
+        public Philosopher(Object leftFork, Object rightFork, boolean reverseOrder) {
             this.leftFork = leftFork;
             this.rightFork = rightFork;
+            this.reverseOrder = reverseOrder;
         }
 
         public void action(String action) throws InterruptedException {
@@ -29,9 +31,18 @@ public class DiningPhilosophers {
 
                     // eat by locking both forks at the same time for an amount of time
                     // https://stackoverflow.com/questions/23217190/how-can-a-thread-acquire-lock-on-two-objects-simultaneously-as-in-this-case
-                    synchronized(leftFork) {
+                    // order of forks changes, only for the last philosopher
+                    if (reverseOrder) {
                         synchronized (rightFork) {
-                            action("Eating");
+                            synchronized (leftFork) {
+                                action("Eating");
+                            }
+                        }
+                    } else {
+                        synchronized (leftFork) {
+                            synchronized (rightFork) {
+                                action("Eating");
+                            }
                         }
                     }
 
@@ -55,8 +66,10 @@ public class DiningPhilosophers {
         }
 
         // make new philosophers with distinct forks
+        // change reservseOrder only for the last philosopher
         for (int i = 0 ; i < philosophers.length; i++) {
-            philosophers[i] = new Philosopher(forks[i], forks[(i + 1) % forks.length]);
+            boolean reverseOrder = (i == philosophers.length - 1);
+            philosophers[i] = new Philosopher(forks[i], forks[(i + 1) % forks.length], reverseOrder);
             philosophers[i].start();
         }
     }
